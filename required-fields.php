@@ -1,16 +1,31 @@
 <?php
-/*
+/**
 Plugin Name: Required Fields
 Plugin URI:
 Description: This plugin allows you to make certain fields on the edit screen required for publishing a post. There is an API to extend it to custom fields too.
 Author: Robert O'Rourke
-Version: 1.0.beta
+Version: 1.1.beta
 Author URI: http://interconnectit.com
 */
+
+/**
+Changelog:
+
+1.1.beta
+	Added ability to have multiple validations per field
+
+*/
+
+if ( ! class_exists( 'required_fields' ) ) {
 
 add_action( 'plugins_loaded', array( 'required_fields', 'instance' ) );
 
 class required_fields {
+
+	/**
+	 * Translation DOM
+	 */
+	const DOM = __CLASS__;
 
 	/**
 	 * Holds the registered validation config
@@ -79,35 +94,35 @@ class required_fields {
 
 		}
 
-		add_settings_section( 'required_fields', __( 'Required fields' ), array( $this, 'section' ), 'writing' );
+		add_settings_section( 'required_fields', __( 'Required fields', self::DOM ), array( $this, 'section' ), 'writing' );
 
 		$fields = apply_filters( 'required_fields', array(
 			'post_title' => array(
-					'title' => __( 'Title' ),
+					'title' => __( 'Title', self::DOM ),
 					'setting_cb' => 'intval',
 					'setting_field' => array( 'required_fields', 'checkbox_field' ),
 					'message' => '',
 					'validation_cb' => false,
 					'post_types' => 'any' ),
 			'post_content' => array(
-					'title' => __( 'Content' ),
+					'title' => __( 'Content', self::DOM ),
 					'setting_cb' => 'intval',
 					'setting_field' => array( 'required_fields', 'checkbox_field' ),
 					'message' => '',
 					'validation_cb' => false,
 					'post_types' => 'any' ),
 			'post_excerpt' => array(
-					'title' => __( 'Excerpt' ),
+					'title' => __( 'Excerpt', self::DOM ),
 					'setting_cb' => 'intval',
 					'setting_field' => array( 'required_fields', 'checkbox_field' ),
 					'message' => '',
 					'validation_cb' => false,
 					'post_types' => 'post' ),
 			'category' => array(
-					'title' => __( 'Category' ),
+					'title' => __( 'Category', self::DOM ),
 					'setting_cb' => 'intval',
 					'setting_field' => array( 'required_fields', 'checkbox_field' ),
-					'message' => __( 'You must choose a category other than the default.' ),
+					'message' => __( 'You must choose a category other than the default.', self::DOM ),
 					'validation_cb' => array( 'required_fields', '_has_category' ),
 					'post_types' => 'post' )
 		) );
@@ -129,7 +144,7 @@ class required_fields {
 	}
 
 	function section() { ?>
-		<p><?php _e( 'Use the checkboxes below to make the corresponding fields required before a post can be published.' ); ?></p>
+		<p><?php _e( 'Use the checkboxes below to make the corresponding fields required before a post can be published.', self::DOM ); ?></p>
 		<?php
 	}
 
@@ -148,8 +163,8 @@ class required_fields {
 			$this->fields[ $type ][] = array(
 				'label' => $label,
 				'name' => $name,
-				'callback' => is_callable( $validation_cb ) ? $validation_cb : array( 'required_fields', '_not_empty' ),
-				'message' => empty( $message ) ? sprintf( __( '%s is required before you can publish.' ), $label ) : $message
+				'cb' => is_callable( $validation_cb ) || is_array( $validation_cb ) ? $validation_cb : array( 'required_fields', '_not_empty' ),
+				'message' => empty( $message ) ? sprintf( __( '%s is required before you can publish.', self::DOM ), $label ) : $message
 				);
 		}
 
@@ -178,12 +193,26 @@ class required_fields {
 			$value = $this->_find_field( $validation[ 'name' ], $postarr );
 			if ( $value === null )
 				$value = $postarr;
-			if ( ! call_user_func( $validation[ 'callback' ], $value ) )
-				$errors[ sanitize_key( $validation[ 'name' ] ) ] = $validation[ 'message' ];
+
+			// if we're doing multiple validations
+			if ( ! is_callable( $validation[ 'cb' ] ) && is_array( $validation[ 'cb' ] ) ) {
+				foreach( $validation[ 'cb' ] as $subvalidation ) {
+					if ( isset( $subvalidation[ 'cb' ] ) && ! call_user_func( $subvalidation[ 'cb' ], $value ) ) {
+						if ( ! isset( $errors[ sanitize_key( $validation[ 'name' ] ) ] ) )
+							$errors[ sanitize_key( $validation[ 'name' ] ) ] = array( 'message' => $validation[ 'message' ], 'errors' => array() );
+						$errors[ sanitize_key( $validation[ 'name' ] ) ][ 'errors' ][] = $subvalidation[ 'message' ];
+					}
+				}
+
+			// single validation
+			} elseif( is_callable( $validation[ 'cb' ] ) ) {
+				if ( ! call_user_func( $validation[ 'cb' ], $value ) )
+					$errors[ sanitize_key( $validation[ 'name' ] ) ] = $validation[ 'message' ];
+			}
 		}
 
 		if( ! empty( $errors ) ) {
-			// store errors for display (crappy flash error implementation)
+			// store errors for display
 			update_option( $this->transient_key, $errors );
 			// revert to draft
 			$data[ 'post_status' ] = 'draft';
@@ -198,9 +227,21 @@ class required_fields {
 		if( $this->errors && $pagenow == 'post.php' ) {
 			echo '<div class="error">';
 			foreach( $this->errors as $code => $message ) {
-				echo '<p class="' . $code . '">' . $message . '</p>';
+				if ( is_array( $message ) ) {
+					if ( ! empty( $message[ 'message' ] ) )
+						echo '<p class="' . $code . '">' . $message[ 'message' ] . '</p>';
+					echo '<ul class="' . $code . '-list">';
+					foreach( $message[ 'errors' ] as $error ) {
+						echo '<li>' . $error . '</li>';
+					}
+					echo '</ul>';
+				} else {
+					echo '<p class="' . $code . '">' . $message . '</p>';
+				}
 			}
 			echo '</div>';
+
+			// remove errors
 			delete_option( $this->transient_key );
 		}
 	}
@@ -246,7 +287,8 @@ if ( ! function_exists( 'register_required_field' ) ) {
 	 * @param string $label         Nice name for the required field
 	 * @param string $name          The post data array key or custom field key
 	 * @param string $message       The error message to display if validation fails
-	 * @param function $validation_cb A callback that returns true if the field value is ok
+	 * @param callback|array $validation_cb A callback that returns true if the field value is ok or an array of error messages and callbacks to test.
+	 * 			array format: array( array( 'message' => 'My error message', 'cb' => 'my_validation_method' ), ... )
 	 * @param string|array $post_type     The post type or post types to run the validation on
 	 *
 	 * @return void
@@ -255,6 +297,8 @@ if ( ! function_exists( 'register_required_field' ) ) {
 		$rf = required_fields::instance();
 		$rf->register( $label, $name, $message, $validation_cb, $post_type );
 	}
+
+}
 
 }
 

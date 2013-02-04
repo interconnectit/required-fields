@@ -103,14 +103,14 @@ class required_fields {
 					'setting_field' => array( 'required_fields', 'checkbox_field' ),
 					'message' => '',
 					'validation_cb' => false,
-					'post_types' => 'any' ),
+					'post_types' => array( 'post', 'page' ) ),
 			'post_content' => array(
 					'title' => __( 'Content', self::DOM ),
 					'setting_cb' => 'intval',
 					'setting_field' => array( 'required_fields', 'checkbox_field' ),
 					'message' => '',
 					'validation_cb' => false,
-					'post_types' => 'any' ),
+					'post_types' => array( 'post', 'page' ) ),
 			'post_excerpt' => array(
 					'title' => __( 'Excerpt', self::DOM ),
 					'setting_cb' => 'intval',
@@ -197,7 +197,7 @@ class required_fields {
 			// if we're doing multiple validations
 			if ( ! is_callable( $validation[ 'cb' ] ) && is_array( $validation[ 'cb' ] ) ) {
 				foreach( $validation[ 'cb' ] as $subvalidation ) {
-					if ( isset( $subvalidation[ 'cb' ] ) && ! call_user_func( $subvalidation[ 'cb' ], $value ) ) {
+					if ( isset( $subvalidation[ 'cb' ] ) && is_callable( $subvalidation[ 'cb' ] ) && ! call_user_func( $subvalidation[ 'cb' ], $value ) ) {
 						if ( ! isset( $errors[ sanitize_key( $validation[ 'name' ] ) ] ) )
 							$errors[ sanitize_key( $validation[ 'name' ] ) ] = array( 'message' => $validation[ 'message' ], 'errors' => array() );
 						$errors[ sanitize_key( $validation[ 'name' ] ) ][ 'errors' ][] = $subvalidation[ 'message' ];

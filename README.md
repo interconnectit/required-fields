@@ -19,11 +19,12 @@ There is an API to add your own required fields too:
  * The default callback checks if the value of the post data or
  * post meta field corresponding to the $name is empty or not.
  *
- * @param string $label               Nice name for the required field
- * @param string $name                The post data array key or custom field key eg: 'post_title', 'my_meta_key'
- * @param string $message             The error message to display if validation fails
- * @param function $validation_cb     A callback that returns true if the field value is ok
- * @param string|array $post_type     The post type or post types to run the validation on
+ * @param string 			$label         	Nice name for the required field
+ * @param string 			$name          	The post data array key or custom field key eg: 'post_title', 'my_meta_key'
+ * @param string 			$message       	The error message to display if validation fails
+ * @param callback|array 	$validation_cb 	A callback that returns true if the field value is ok or an array of error message and callbacks
+ * 											Array format: array( array( 'message' => 'Error message', 'cb' => 'callable_function' ), ... )
+ * @param string|array 		$post_type     	The post type or post types to run the validation on
  *
  * @return void
  */

@@ -106,21 +106,21 @@ class required_fields {
 					'title' => __( 'Title', self::DOM ),
 					'setting_cb' => 'intval',
 					'setting_field' => array( __CLASS__, 'checkbox_field' ),
-					'message' => '',
+					'message' => __( 'You must enter a title.', self::DOM ),
 					'validation_cb' => false,
 					'post_types' => array( 'post', 'page' ) ),
 			'post_content' => array(
 					'title' => __( 'Content', self::DOM ),
 					'setting_cb' => 'intval',
 					'setting_field' => array( __CLASS__, 'checkbox_field' ),
-					'message' => '',
+					'message' => __( 'You must add some content before you can publish.', self::DOM ),
 					'validation_cb' => false,
 					'post_types' => array( 'post', 'page' ) ),
 			'post_excerpt' => array(
 					'title' => __( 'Excerpt', self::DOM ),
 					'setting_cb' => 'intval',
 					'setting_field' => array( __CLASS__, 'checkbox_field' ),
-					'message' => '',
+					'message' => __( 'A custom excerpt is required.', self::DOM ),
 					'validation_cb' => false,
 					'post_types' => 'post' ),
 			'category' => array(
@@ -163,7 +163,7 @@ class required_fields {
 
 			// if the setting validation returns true register the field as required
 			if ( call_user_func( $field[ 'setting_cb' ], $field_value ) )
-				$this->register( $field[ 'title' ], $name, $field[ 'message' ], $field[ 'validation_cb' ], $field[ 'post_types' ] );
+				$this->register( $name, $field[ 'message' ], $field[ 'validation_cb' ], $field[ 'post_types' ] );
 		}
 
 	}
@@ -184,7 +184,7 @@ class required_fields {
 		echo '<input size="4" type="number" name="' . $args[ 'name' ] . '[]" value="' . $args[ 'value' ][ 1 ] . '" /> px';
 	}
 
-	public function register( $label, $name, $message = '', $validation_cb = false, $post_types = 'post' ) {
+	public function register( $name, $message = '', $validation_cb = false, $post_types = 'post' ) {
 
 		if ( $post_types == 'any' )
 			$post_types = get_post_types( array( 'public' => true ) );
@@ -193,13 +193,18 @@ class required_fields {
 			if ( ! isset( $this->fields[ $type ] ) )
 				$this->fields[ $type ] = array();
 			$this->fields[ $type ][] = array(
-				'label' => $label,
 				'name' => $name,
 				'cb' => is_callable( $validation_cb ) || is_array( $validation_cb ) ? $validation_cb : $this->default_validation,
-				'message' => empty( $message ) ? sprintf( __( '%s is required before you can publish.', self::DOM ), $label ) : $message
+				'message' => empty( $message ) ? sprintf( __( '%s is required before you can publish.', self::DOM ), $this->prettify_name( $name ) ) : $message
 				);
 		}
 
+	}
+	
+	public function prettify_name( $name ) {
+		$name = preg_replace( '/[_\-\[\]]+/', ' ', $name );
+		$name = ucwords( trim( $name ) );
+		return $name;
 	}
 
 	public function force_draft( $data, $postarr ) {
@@ -319,13 +324,14 @@ class required_fields {
 		return count( $cats );
 	}
 	
-	// image size checking
+	// image size field validation
 	public function _check_image_size_fields( $value ) {
 		if ( ! is_array( $value ) )
 			return false;
 		return array_map( 'intval', $value );
 	}
 	
+	// test featured image size
 	public function _check_image_size( $postarr ) {
 
 		list( $req_width, $req_height ) = get_option( 'require_image_size', array( 0, 0 ) );
@@ -363,13 +369,13 @@ if ( ! function_exists( 'register_required_field' ) ) {
 	 * @param string $message       The error message to display if validation fails
 	 * @param callback|array $validation_cb A callback that returns true if the field value is ok or an array of error messages and callbacks to test.
 	 * 			array format: array( array( 'message' => 'My error message', 'cb' => 'my_validation_method' ), ... )
-	 * @param string|array $post_type     The post type or post types to run the validation on
+	 * @param string|array $post_type     The post type or array of post types to run the validation on
 	 *
 	 * @return void
 	 */
-	function register_required_field( $label, $name, $message = '', $validation_cb = false, $post_type = 'post' ) {
+	function register_required_field( $name, $message = '', $validation_cb = false, $post_type = 'post' ) {
 		$rf = required_fields::instance();
-		$rf->register( $label, $name, $message, $validation_cb, $post_type );
+		$rf->register( $name, $message, $validation_cb, $post_type );
 	}
 
 }

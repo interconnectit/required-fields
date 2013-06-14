@@ -28,7 +28,6 @@ There is an API to add your own required fields too:
  * The default callback checks if the value of the post data or
  * post meta field corresponding to the $name is empty or not.
  *
- * @param string 			$label         	Nice name for the required field
  * @param string 			$name          	The post data array key or custom field key eg: 'post_title', 'my_meta_key'
  * @param string 			$message       	The error message to display if validation fails
  * @param callback|array 	$validation_cb 	A callback that returns true if the field value is ok or an array of error message and callbacks
@@ -38,7 +37,38 @@ There is an API to add your own required fields too:
  * @return void
  */
 
-register_required_field( $label, $name, $message, $validation_cb, $post_types );
+register_required_field( $name, $message, $validation_cb, $post_types );
 ```
+
+If you use a custom `$name` that isn't found in the post data or meta data and you have a custom callback as well
+then the entire `$_POST` array is returned to your validation function so you have access to everything you would need.
+
+For example:
+
+```php
+
+register_required_field(
+	'twitter',
+	'Please enter a twitter username for the post or a default for the site before publishing',
+	function( $postarr ) {
+		$post_twitter = get_post_meta( $postarr[ 'ID' ], 'twitter', true );
+		if ( $post_twitter )
+			return true;
+		$site_twitter = get_option( 'site_twitter' );
+		if ( $site_twitter )
+			return true;
+		
+		// do not publish if there's no twitter account set anywhere
+		return false;
+	},
+	array( 'post', 'custom_post_type' )
+);
+
+```
+
+The `$_POST` array gives you access to the taxonomy data being posted as well as many useful values. Use the network panel in your browser console
+to examine what is available.
+
+## Thanks!
 
 Any questions or problem give me a shout on Twitter [@sanchothefat](http://twitter.com/sanchothefat)

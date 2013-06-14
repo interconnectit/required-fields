@@ -7,7 +7,16 @@ Adds an extensible API and some basic settings to WordPress to make standard fie
 
 Head to the **Writing** settings page and scroll to the bottom. There you will find boxes to check to make certain fields required when a user adds or edits a post or page.
 
-The default options are to make the title, content, custom excerpt and category mandatory.
+The default options are:
+
+* require title
+* require content
+* require custom excerpt
+* require non default category
+* require featured image
+* minimum size for featured images
+
+![alt text](https://github.com/interconnectit/required-fields/raw/master/src/common/images/screenshot.png "Admin screenshot")
 
 ## API
 

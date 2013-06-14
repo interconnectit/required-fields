@@ -16,7 +16,7 @@ The default options are:
 * require featured image
 * minimum size for featured images
 
-![alt text](https://github.com/interconnectit/required-fields/raw/master/src/common/images/screenshot.png "Admin screenshot")
+![alt text](https://raw.github.com/interconnectit/required-fields/master/screenshot.png "Admin screenshot")
 
 ## API
 

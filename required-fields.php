@@ -133,7 +133,6 @@ class required_fields {
 		);
 		
 		if ( current_theme_supports( 'post-thumbnails' ) ) {
-			$required_image_size = get_option( 'require_image_size', array( 0, 0 ) );
 			$fields[ '_thumbnail_id' ] = array(
 				'title' => __( 'Featured image', self::DOM ),
 				'setting_cb' => 'intval',
@@ -141,6 +140,8 @@ class required_fields {
 				'message' => __( 'You must set a featured image.', self::DOM ),
 				'validation_cb' => false,
 				'post_types' => 'post' );
+			
+			$required_image_size = get_option( 'require_image_size', array( 0, 0 ) );
 			$fields[ 'image_size' ] = array(
 				'title' => __( 'Featured image minimum size', self::DOM ),
 				'setting_cb' => array( __CLASS__, '_check_image_size_fields' ),

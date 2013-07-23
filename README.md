@@ -23,7 +23,7 @@ The default options are:
 
 There is an API to add/remove your own required fields too:
 
-### `register_required_field( name, message [, callback [, post types [, highlight ] ] ] )`
+**`register_required_field( name, message [, callback [, post types [, highlight ] ] ] )`**
 
 ```php
 /**
@@ -70,7 +70,7 @@ register_required_field(
 The `$postarr` argument array gives you access to the taxonomy data being posted as well as many other
 useful values. Use the network panel in your browser console to examine what `$_POST` data is available.
 
-### `unregister_required_field( name, message [, post types ] )`
+**`unregister_required_field( name, message [, post types ] )`**
 
 ```php
 /**
@@ -134,9 +134,9 @@ function has_page_template( $value, $postarr ) {
 In the above example you should note that the `highlight` option contains a CSS selector targeting the error
 field.
 
-If you do this the plugin will highlight the field or section that matches the anchor target. Clicking on the
-error message will scroll the page to the field that has an error and shake it to make it clear what needs to be
-actioned.
+If you do this the plugin will highlight the field or section that matches the selectors. Clicking on the
+error message will scroll the page to the field that has an error and shake it to make it clear what needs
+to be actioned.
 
 ## Thanks!
 

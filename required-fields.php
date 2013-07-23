@@ -6,6 +6,7 @@ Description: This plugin allows you to make certain fields required on the edit 
 Author: Robert O'Rourke @ interconnect/it
 Version: 1.4
 Author URI: http://interconnectit.com
+License: http://www.gnu.org/licenses/gpl-3.0.txt
 */
 
 /**
@@ -35,6 +36,11 @@ class required_fields {
 	 * Translation DOM
 	 */
 	const DOM = __CLASS__;
+
+	/**
+	 * @var string Plugin basename
+	 */
+	protected static $plugin;
 
 	/**
 	 * Holds the registered validation config
@@ -74,6 +80,9 @@ class required_fields {
 		if ( ! is_admin() )
 			return;
 
+		// set plugin base
+		$this->plugin = plugin_basename( __FILE__ );
+
 		// force post to remain as draft if error messages are set
 		add_filter( 'wp_insert_post_data', array( $this, 'force_draft' ), 12, 2 );
 
@@ -91,6 +100,22 @@ class required_fields {
 		$this->post_id = isset( $_GET[ 'post' ] ) ? intval( $_GET[ 'post' ] ) : 0;
 		$this->current_user = get_current_user_id();
 		$this->transient_key = "save_post_error_{$this->post_id}_{$this->current_user}"; // key should be specific to post and the user editing the post
+
+		// add settings link
+		add_filter( "plugin_action_links_{$this->plugin}", array( $this, 'settings_link' ), 10, 1 );
+	}
+
+
+	/**
+	 * Adds a link direct othe required fields settings on the plugins page
+	 *
+	 * @param array $links Array of links displayed on plugins page
+	 * @return array
+	 */
+	public function settings_link( $links ) {
+		$settings_link = '<a href="' . admin_url( 'options-writing.php#required-fields-settings' ) . '">' . __( 'Settings', self::DOM ) . '</a>';
+		array_unshift( $links, $settings_link );
+		return $links;
 	}
 
 
@@ -238,7 +263,7 @@ class required_fields {
 	}
 
 	public function section() { ?>
-		<p><?php _e( 'Use the settings below to make the corresponding fields required before content can be published.', self::DOM ); ?></p>
+		<p id="required-fields-settings"><?php _e( 'Use the settings below to make the corresponding fields required before content can be published.', self::DOM ); ?></p>
 		<?php
 	}
 

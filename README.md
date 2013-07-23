@@ -114,7 +114,7 @@ function my_required_fields_settings( $fields ) {
 		'setting_field' => array( 'required_fields', 'checkbox_field' ), 	// A built in checkbox field
 		'setting_description' => '',
 		'name' => 'page_template',											// The $_POST field to check
-		'message' => __( 'You should select a <a href="#page_template">page template</a> before publishing.' ),
+		'message' => __( 'You should select a page template before publishing.' ),
 		'validation_cb' => 'has_page_template', 							// custom validation callback
 		'post_type' => 'page'												// post type for validation
 		'highlight' => '#page_template' 									// CSS selector to highlight on fail
@@ -141,3 +141,7 @@ to be actioned.
 ## Thanks!
 
 Any questions or problem give me a shout on Twitter [@sanchothefat](https://twitter.com/sanchothefat)
+
+## License
+
+GPL v3

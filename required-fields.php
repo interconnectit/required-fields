@@ -4,13 +4,16 @@ Plugin Name: Required Post Fields
 Plugin URI:
 Description: This plugin allows you to make certain fields required on the edit screen before a post can be published. There is an API to add your own rules too.
 Author: Robert O'Rourke @ interconnect/it
-Version: 1.4
+Version: 1.5
 Author URI: http://interconnectit.com
 License: http://www.gnu.org/licenses/gpl-3.0.txt
 */
 
 /**
 Changelog:
+
+1.5
+	Show hidden metaboxes if they contain required fields
 
 1.4
 	UX improvements - highlighting error fields and adding links in default message plus option to require tags
@@ -135,6 +138,9 @@ class required_fields {
 					unset( $_GET[ 'message' ] );
 			}
 
+			// makes sure hidden required fields are shown and highlights errors
+			add_action( 'admin_print_footer_scripts', array( $this, 'error_scripts' ), 100 );
+
 		}
 
 		// easy method of disabling admin area for plugin
@@ -258,6 +264,7 @@ class required_fields {
 			// if the setting validation returns true register the field as required
 			if ( call_user_func( $field[ 'setting_cb' ], $field_value ) )
 				$this->register( $field[ 'name' ], $field[ 'message' ], $field[ 'validation_cb' ], $field[ 'post_type' ], $field[ 'highlight' ] );
+
 		}
 
 	}
@@ -440,8 +447,6 @@ class required_fields {
 			}
 			echo '</div>';
 
-			add_action( 'admin_print_footer_scripts', array( $this, 'error_scripts' ) );
-
 			// remove errors
 			delete_option( $this->transient_key );
 		}
@@ -449,11 +454,26 @@ class required_fields {
 
 	public function error_scripts() {
 
+		$required_fields = array();
+
+		foreach( $this->fields as $post_type => $fields ) {
+			$required_fields[ $post_type ] = array();
+			foreach( $fields as $field ) {
+				$required_fields[ $post_type ][] = array(
+					'name' => $field[ 'name' ],
+					'message' => $field[ 'message' ],
+					'highlight' => $field[ 'highlight' ]
+				);
+			}
+		}
+
+		$required_fields_json = json_encode( $required_fields );
+
 		echo '
 			<style>
 				#wpbody-content { overflow: visible!important; }
 				*:target,
-				.required-error { outline: #ffebe8 4px solid; }
+				.required-field-error { outline: #ffebe8 4px solid; }
 				.required-fields-errors [data-highlight] { cursor: pointer; }
 				.required-fields-errors [data-highlight]:hover,
 				.required-fields-errors [data-highlight]:focus { color: #c00; }
@@ -515,9 +535,25 @@ class required_fields {
 			</style>
 			<script>
 				(function($){
+
+					var required_fields = ' . $required_fields_json . ',
+						required_fields_update_postboxes = false;
+
+					// show hidden required fields
+					$.each( required_fields[pagenow], function(i, field) {
+						var $field = $(field.highlight),
+							postbox_id = $field.hasClass("postbox") ? $field.attr("id") : $field.parents(".postbox").attr("id");
+						if ( $field.is(":hidden") ) {
+							$("#screen-options-wrap #" + postbox_id + "-hide").trigger("click.postboxes");
+							$("#" + postbox_id).show();
+							required_fields_update_postboxes = true;
+						}
+					} );
+
+					// highlight errors
 					$(".required-fields-errors [data-highlight]")
 						.each(function(){
-							$($(this).data("highlight")).addClass("required-error");
+							$($(this).data("highlight")).addClass("required-field-error");
 						})
 						.click(function(e){
 							e.preventDefault();
@@ -525,10 +561,15 @@ class required_fields {
 							if ( ! $field.length )
 								return;
 							$field.removeClass( "shake" );
-							$("html,body").stop(true,true).animate({scrollTop:($field.offset().top - 40)+"px"}, "fast", function(){
+							$("html,body").stop(true,true).animate({scrollTop:($field.offset().top - 40)+"px"}, "normal", function(){
 								$field.addClass( "shake" );
 							});
 						});
+
+					// save post box state
+					if ( required_fields_update_postboxes )
+						postboxes.save_state( pagenow );
+
 				})(jQuery)
 			</script>';
 

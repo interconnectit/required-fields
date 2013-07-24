@@ -4,13 +4,17 @@ Plugin Name: Required Post Fields
 Plugin URI:
 Description: This plugin allows you to make certain fields required on the edit screen before a post can be published. There is an API to add your own rules too.
 Author: Robert O'Rourke @ interconnect/it
-Version: 1.5
+Version: 1.5.1
 Author URI: http://interconnectit.com
 License: http://www.gnu.org/licenses/gpl-3.0.txt
 */
 
 /**
 Changelog:
+
+1.5.1
+	Fixed PHP 5.2.x incompatibility
+	Improved default error messages
 
 1.5
 	Show hidden metaboxes if they contain required fields
@@ -225,6 +229,12 @@ class required_fields {
 
 			if ( current_theme_supports( 'post-thumbnails' ) && post_type_supports( $post_type->name, 'thumbnail' ) ) {
 				$required_image_size = get_option( "require_image_size_{$post_type->name}", array( 0, 0 ) );
+
+				$image_size_message = implode( __( ' and ', self::DOM ), array_filter( array(
+					intval( $required_image_size[ 0 ] ) ? $required_image_size[ 0 ] . 'px ' . __( 'wide', self::DOM ) : '',
+					intval( $required_image_size[ 1 ] ) ? $required_image_size[ 1 ] . 'px ' . __( 'tall', self::DOM ) : ''
+				) ) );
+
 				$post_type_fields[ "thumbnail_id_{$post_type->name}" ] = array(
 					'name' => '_thumbnail_id',
 					'title' => __( 'Featured image', self::DOM ),
@@ -239,7 +249,7 @@ class required_fields {
 					'title' => __( 'Featured image minimum size', self::DOM ),
 					'setting_cb' => array( __CLASS__, '_check_image_size_fields' ),
 					'setting_field' => array( __CLASS__, 'image_size_field' ),
-					'message' => __( 'To keep your site looking perfect your <a href="#postimagediv" title="Skip to featured image">featured image</a> should be at least ' . "{$required_image_size[0]}x{$required_image_size[1]}px" . '.', self::DOM ),
+					'message' => sprintf( __( 'To keep your site looking perfect your <a href="#postimagediv" title="Skip to featured image">featured image</a> should be at least %s.', self::DOM ), "<strong>$image_size_message</strong>" ),
 					'validation_cb' => array( __CLASS__, '_check_image_size' ),
 					'post_type' => $post_type->name,
 					'highlight' => '#postimagediv' );
@@ -614,10 +624,12 @@ class required_fields {
 	// 1 is the ID of the 'Uncategorized' category
 	public function _has_category( $value, $postarr ) {
 		$cats = $postarr[ 'post_category' ];
-		$cats = array_filter( $cats, function( $val ) {
-			return $val > 1;
-		} );
+		$cats = array_filter( $cats, array( __CLASS__, '_has_category_filter' ) );
 		return count( $cats );
+	}
+
+	public function _has_category_filter( $id ) {
+		return intval( $id ) > 1;
 	}
 
 	// Check we have at least one tag

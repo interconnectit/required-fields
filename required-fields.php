@@ -4,13 +4,16 @@ Plugin Name: Required Post Fields
 Plugin URI:
 Description: This plugin allows you to make certain fields required on the edit screen before a post can be published. There is an API to add your own rules too.
 Author: Robert O'Rourke @ interconnect/it
-Version: 1.5.1
+Version: 1.5.2
 Author URI: http://interconnectit.com
 License: http://www.gnu.org/licenses/gpl-3.0.txt
 */
 
 /**
 Changelog:
+
+1.5.2
+	Added icit branding and separated assets out
 
 1.5.1
 	Fixed PHP 5.2.x incompatibility
@@ -47,7 +50,17 @@ class required_fields {
 	/**
 	 * @var string Plugin basename
 	 */
+	protected static $version = '1.5.2';
+
+	/**
+	 * @var string Plugin basename
+	 */
 	protected static $plugin;
+
+	/**
+	 * @var string Plugin url
+	 */
+	protected static $plugin_url;
 
 	/**
 	 * Holds the registered validation config
@@ -88,7 +101,10 @@ class required_fields {
 			return;
 
 		// set plugin base
-		$this->plugin = plugin_basename( __FILE__ );
+		self::$plugin = plugin_basename( __FILE__ );
+
+		// plugin url
+		self::$plugin_url = plugins_url( '', __FILE__ );
 
 		// force post to remain as draft if error messages are set
 		add_filter( 'wp_insert_post_data', array( $this, 'force_draft' ), 12, 2 );
@@ -109,7 +125,10 @@ class required_fields {
 		$this->transient_key = "save_post_error_{$this->post_id}_{$this->current_user}"; // key should be specific to post and the user editing the post
 
 		// add settings link
-		add_filter( "plugin_action_links_{$this->plugin}", array( $this, 'settings_link' ), 10, 1 );
+		add_filter( 'plugin_action_links_' . self::$plugin, array( $this, 'settings_link' ), 10, 1 );
+
+		// enqueue assets
+		add_action( 'admin_enqueue_scripts', array( $this, 'scripts' ), 100 );
 	}
 
 
@@ -142,16 +161,13 @@ class required_fields {
 					unset( $_GET[ 'message' ] );
 			}
 
-			// makes sure hidden required fields are shown and highlights errors
-			add_action( 'admin_print_footer_scripts', array( $this, 'error_scripts' ), 100 );
-
 		}
 
 		// easy method of disabling admin area for plugin
 		if ( apply_filters( 'required_fields_disable_admin', false ) )
 			return;
 
-		add_settings_section( 'required_fields', __( 'Required Post Fields', self::DOM ), array( $this, 'section' ), 'writing' );
+		add_settings_section( 'required_fields', '', array( $this, 'section' ), 'writing' );
 
 		$post_types = get_post_types( array( 'public' => true ), 'objects' );
 
@@ -206,7 +222,8 @@ class required_fields {
 				$default = get_term( 1, 'category' );
 				$post_type_fields[ "category_{$post_type->name}" ] = array(
 					'name' => 'category',
-					'title' => __( 'Category (non-default)', self::DOM ),
+					'title' => __( 'Category', self::DOM ),
+					'description' => sprintf( __( 'This will force authors to choose a category other than "%s"', self::DOM ), $default->name ),
 					'setting_cb' => 'intval',
 					'setting_field' => array( __CLASS__, 'checkbox_field' ),
 					'message' => sprintf( __( 'You should choose a <a href="#categorydiv" title="Skip to categories">category</a> other than the default "%s".', self::DOM ), $default->name ),
@@ -265,9 +282,11 @@ class required_fields {
 		foreach( $fields as $name => $field ) {
 			$field_name = "require_{$name}";
 			$field_value = get_option( $field_name );
-			add_settings_field( $field_name , $field[ 'title' ], $field[ 'setting_field' ], 'writing', 'required_fields_' . $field[ 'post_type' ], array(
+			$field_id = sanitize_title_with_dashes( $field_name );
+			add_settings_field( $field_name , '<label for="' . $field_id . '">' . $field[ 'title' ] . '</label>', $field[ 'setting_field' ], 'writing', 'required_fields_' . $field[ 'post_type' ], array(
 				'name' => $field_name,
-				'value' => $field_value
+				'value' => $field_value,
+				'description' => isset( $field[ 'description' ] ) ? $field[ 'description' ] : ''
 			) );
 			register_setting( 'writing', $field_name, $field[ 'setting_cb' ] );
 
@@ -279,23 +298,79 @@ class required_fields {
 
 	}
 
+	/**
+	 * Enqueue required fields javascript
+	 *
+	 * @return void
+	 */
+	public function scripts() {
+		global $pagenow;
+
+		// makes sure hidden required fields are shown and highlights errors
+		$required_fields = array();
+
+		foreach( $this->fields as $post_type => $fields ) {
+			$required_fields[ $post_type ] = array();
+			foreach( $fields as $field ) {
+				$required_fields[ $post_type ][] = array(
+					'name' => $field[ 'name' ],
+					'message' => $field[ 'message' ],
+					'highlight' => $field[ 'highlight' ]
+				);
+			}
+		}
+
+		wp_register_style( 'required-fields', self::$plugin_url . '/assets/required-fields.css', array(), self::$version );
+		wp_register_script( 'required-fields', self::$plugin_url . '/assets/required-fields.js', array( 'jquery', 'post' ), self::$version, true );
+		wp_localize_script( 'required-fields', 'required_fields_l10n', array(
+			'fields' => $required_fields
+		) );
+
+		// post page
+		if ( $pagenow == 'post.php' || $pagenow == 'post-new.php' ) {
+
+			wp_enqueue_style( 'required-fields' );
+			wp_enqueue_script( 'required-fields' );
+
+		}
+
+		// settings
+		if ( $pagenow == 'options-writing.php' ) {
+
+			wp_enqueue_style( 'required-fields' );
+
+		}
+
+	}
+
+	/**
+	 * Some inline branding for interconnect/it
+	 *
+	 * @return void
+	 */
 	public function section() { ?>
-		<p id="required-fields-settings"><?php _e( 'Use the settings below to make the corresponding fields required before content can be published.', self::DOM ); ?></p>
+		<div id="required-fields-settings" class="icit-branding">
+			<div class="icit-logo"><a href="http://interconnectit.com/" title="<?php _e( 'Visit interconnect/it for more WordPress goodness!', self::DOM ) ?>">interconnect<span>/</span><strong>it</strong></a></div>
+			<h2><?php _e( 'Required Post Fields', self::DOM ); ?></h2>
+			<p><?php _e( 'Use the settings below to make the corresponding fields required before content can be published.', self::DOM ); ?></p>
+		</div>
 		<?php
 	}
 
 	public function checkbox_field( $args ) {
-		echo '<input type="checkbox" name="' . $args[ 'name' ] . '" value="1" ' . checked( 1, intval( $args[ 'value' ] ), false ) . ' />';
-		if ( isset( $args[ 'description' ] ) )
+		$field_id = sanitize_title_with_dashes( $args[ 'name' ] );
+		echo '<label for="' . $field_id . '"><input type="checkbox" id="' . $field_id . '" name="' . $args[ 'name' ] . '" value="1" ' . checked( 1, intval( $args[ 'value' ] ), false ) . ' />';
+		if ( ! empty( $args[ 'description' ] ) )
 			echo ' <span class="description">' . $args[ 'description' ] . '</span>';
+		echo '</label>';
 	}
 
 	public function image_size_field( $args ) {
 		if ( ! is_array( $args[ 'value' ] ) )
 			$args[ 'value' ] = array( '', '' );
-		echo '<input size="4" type="number" name="' . $args[ 'name' ] . '[]" value="' . $args[ 'value' ][ 0 ] . '" /> px wide ' . _( 'by' ) . ' ';
-		echo '<input size="4" type="number" name="' . $args[ 'name' ] . '[]" value="' . $args[ 'value' ][ 1 ] . '" /> px high';
-		echo '<div class="description">' . __( 'Set to blank or 0 to allow any size', self::DOM ) . '</div>';
+		echo '<input size="3" type="number" name="' . $args[ 'name' ] . '[]" value="' . $args[ 'value' ][ 0 ] . '" /> px ' . __( 'wide', self::DOM ) . ' ' . _( 'by' ) . ' ';
+		echo '<input size="3" type="number" name="' . $args[ 'name' ] . '[]" value="' . $args[ 'value' ][ 1 ] . '" /> px ' . __( 'tall', self::DOM );
+		echo '<div><span class="description">' . __( 'Set to blank or 0 to allow any size', self::DOM ) . '</span></div>';
 	}
 
 	/**
@@ -460,129 +535,6 @@ class required_fields {
 			// remove errors
 			delete_option( $this->transient_key );
 		}
-	}
-
-	public function error_scripts() {
-
-		$required_fields = array();
-
-		foreach( $this->fields as $post_type => $fields ) {
-			$required_fields[ $post_type ] = array();
-			foreach( $fields as $field ) {
-				$required_fields[ $post_type ][] = array(
-					'name' => $field[ 'name' ],
-					'message' => $field[ 'message' ],
-					'highlight' => $field[ 'highlight' ]
-				);
-			}
-		}
-
-		$required_fields_json = json_encode( $required_fields );
-
-		echo '
-			<style>
-				#wpbody-content { overflow: visible!important; }
-				*:target,
-				.required-field-error { outline: #ffebe8 4px solid; }
-				.required-fields-errors [data-highlight] { cursor: pointer; }
-				.required-fields-errors [data-highlight]:hover,
-				.required-fields-errors [data-highlight]:focus { color: #c00; }
-				.shake {
-					-webkit-animation-duration: .4s;
-					-webkit-animation-iteration-count: 1;
-					-webkit-animation-timing-function: ease;
-					-webkit-animation-fill-mode: both;
-					-moz-animation-duration: .4s;
-					-moz-animation-iteration-count: 1;
-					-moz-animation-timing-function: ease;
-					-moz-animation-fill-mode: both;
-					-o-animation-duration: .4s;
-					-o-animation-iteration-count: 1;
-					-o-animation-timing-function: ease;
-					-o-animation-fill-mode: both;
-					animation-duration: .4s;
-					animation-iteration-count: 1;
-					animation-timing-function: ease;
-					animation-fill-mode: both;
-				}
-
-				@-webkit-keyframes shake {
-					0% { -webkit-transform: translateX(0px) }
-					25% { -webkit-transform: translateX(-10px) }
-					50% { -webkit-transform: translateX(10px) }
-					75% { -webkit-transform: translateX(-10px) }
-					100% { -webkit-transform: translateX(0px) }
-				}
-				@-moz-keyframes shake {
-					0% { -moz-transform: translateX(0px) }
-					25% { -moz-transform: translateX(-10px) }
-					50% { -moz-transform: translateX(10px) }
-					75% { -moz-transform: translateX(-10px) }
-					100% { -moz-transform: translateX(0px) }
-				}
-				@-o-keyframes shake {
-					0% { -o-transform: translateX(0px) }
-					25% { -o-transform: translateX(-10px) }
-					50% { -o-transform: translateX(10px) }
-					75% { -o-transform: translateX(-10px) }
-					100% { -o-transform: translateX(0px) }
-				}
-				@keyframes shake {
-					0% { transform: translateX(0px) }
-					25% { transform: translateX(-10px) }
-					50% { transform: translateX(10px) }
-					75% { transform: translateX(-10px) }
-					100% { transform: translateX(0px) }
-				}
-
-				.shake {
-					-webkit-animation-name: shake;
-					-moz-animation-name: shake;
-					-o-animation-name: shake;
-					animation-name: shake;
-				}
-
-			</style>
-			<script>
-				(function($){
-
-					var required_fields = ' . $required_fields_json . ',
-						required_fields_update_postboxes = false;
-
-					// show hidden required fields
-					$.each( required_fields[pagenow], function(i, field) {
-						var $field = $(field.highlight),
-							postbox_id = $field.hasClass("postbox") ? $field.attr("id") : $field.parents(".postbox").attr("id");
-						if ( $field.is(":hidden") ) {
-							$("#screen-options-wrap #" + postbox_id + "-hide").trigger("click.postboxes");
-							$("#" + postbox_id).show();
-							required_fields_update_postboxes = true;
-						}
-					} );
-
-					// highlight errors
-					$(".required-fields-errors [data-highlight]")
-						.each(function(){
-							$($(this).data("highlight")).addClass("required-field-error");
-						})
-						.click(function(e){
-							e.preventDefault();
-							var $field = $($(this).data("highlight"));
-							if ( ! $field.length )
-								return;
-							$field.removeClass( "shake" );
-							$("html,body").stop(true,true).animate({scrollTop:($field.offset().top - 40)+"px"}, "normal", function(){
-								$field.addClass( "shake" );
-							});
-						});
-
-					// save post box state
-					if ( required_fields_update_postboxes )
-						postboxes.save_state( pagenow );
-
-				})(jQuery)
-			</script>';
-
 	}
 
 	/**

@@ -1,0 +1,72 @@
+/* interconnect branding */
+
+.icit-branding { border-top: 3px solid #de1301; padding-top: 10px; }
+.icit-branding .icit-logo { float: right; color: #000; font-family: 'Gill Sans MT', 'Gill Sans', Helvetica, Calibri, Arial, sans-serif; font-weight: normal; padding: 10px 0; font-size: 13px; }
+.icit-branding .icit-logo span { color: #de1301; }
+.icit-branding .icit-logo a { color: inherit; text-decoration: none; }
+#required-fields-settings h2 { background: url(asterix-32.png) no-repeat left center; padding-left: 42px; }
+
+/* error field highlights and shake */
+
+.post-new-php #wpbody-content,
+.post-php #wpbody-content { overflow: visible!important; }
+.post-new-php *:target,
+.post-php *:target,
+.required-field-error { outline: #ffebe8 4px solid; }
+.required-fields-errors [data-highlight] { cursor: pointer; }
+.required-fields-errors [data-highlight]:hover,
+.required-fields-errors [data-highlight]:focus { color: #c00; }
+.shake {
+	-webkit-animation-duration: .4s;
+	-webkit-animation-iteration-count: 1;
+	-webkit-animation-timing-function: ease;
+	-webkit-animation-fill-mode: both;
+	-moz-animation-duration: .4s;
+	-moz-animation-iteration-count: 1;
+	-moz-animation-timing-function: ease;
+	-moz-animation-fill-mode: both;
+	-o-animation-duration: .4s;
+	-o-animation-iteration-count: 1;
+	-o-animation-timing-function: ease;
+	-o-animation-fill-mode: both;
+	animation-duration: .4s;
+	animation-iteration-count: 1;
+	animation-timing-function: ease;
+	animation-fill-mode: both;
+}
+
+@-webkit-keyframes shake {
+	0% { -webkit-transform: translateX(0px) }
+	25% { -webkit-transform: translateX(-10px) }
+	50% { -webkit-transform: translateX(10px) }
+	75% { -webkit-transform: translateX(-10px) }
+	100% { -webkit-transform: translateX(0px) }
+}
+@-moz-keyframes shake {
+	0% { -moz-transform: translateX(0px) }
+	25% { -moz-transform: translateX(-10px) }
+	50% { -moz-transform: translateX(10px) }
+	75% { -moz-transform: translateX(-10px) }
+	100% { -moz-transform: translateX(0px) }
+}
+@-o-keyframes shake {
+	0% { -o-transform: translateX(0px) }
+	25% { -o-transform: translateX(-10px) }
+	50% { -o-transform: translateX(10px) }
+	75% { -o-transform: translateX(-10px) }
+	100% { -o-transform: translateX(0px) }
+}
+@keyframes shake {
+	0% { transform: translateX(0px) }
+	25% { transform: translateX(-10px) }
+	50% { transform: translateX(10px) }
+	75% { transform: translateX(-10px) }
+	100% { transform: translateX(0px) }
+}
+
+.shake {
+	-webkit-animation-name: shake;
+	-moz-animation-name: shake;
+	-o-animation-name: shake;
+	animation-name: shake;
+}

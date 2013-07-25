@@ -106,6 +106,9 @@ class required_fields {
 		// plugin url
 		self::$plugin_url = plugins_url( '', __FILE__ );
 
+		// translations
+		load_plugin_textdomain( self::DOM, false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
+
 		// force post to remain as draft if error messages are set
 		add_filter( 'wp_insert_post_data', array( $this, 'force_draft' ), 12, 2 );
 

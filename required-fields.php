@@ -4,13 +4,16 @@ Plugin Name: Required Post Fields
 Plugin URI:
 Description: This plugin allows you to make certain fields required on the edit screen before a post can be published. There is an API to add your own rules too.
 Author: Robert O'Rourke @ interconnect/it
-Version: 1.5.2
+Version: 1.5.3
 Author URI: http://interconnectit.com
 License: http://www.gnu.org/licenses/gpl-3.0.txt
 */
 
 /**
 Changelog:
+
+1.5.3
+	Modified behaviour so a published post won't be 'unpublished'
 
 1.5.2
 	Added icit branding and separated assets out
@@ -517,8 +520,9 @@ class required_fields {
 		if( ! empty( $errors ) ) {
 			// store errors for display
 			update_option( $this->transient_key, $errors );
-			// revert to draft
-			$data[ 'post_status' ] = 'draft';
+			// revert to draft if attempting to publish for first time
+			if ( isset( $_POST[ 'publish' ] ) )
+				$data[ 'post_status' ] = 'draft';
 		}
 
 		return $data;

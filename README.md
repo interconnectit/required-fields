@@ -17,7 +17,11 @@ The default options are:
 * require featured image
 * minimum size for featured images
 
-![alt text](https://raw.github.com/interconnectit/required-fields/master/screenshot.png "Admin screenshot")
+![alt text](https://raw.github.com/interconnectit/required-fields/master/assets/screenshot-1.png "Admin screenshot")
+
+When you add or edit a post and it doesn't meet the requirements the relevant fields will be highlighted.
+
+![alt text](https://raw.github.com/interconnectit/required-fields/master/assets/screenshot-2.png "Post edit screenshot")
 
 ## API
 

@@ -315,7 +315,7 @@ class required_fields {
 		// makes sure hidden required fields are shown and highlights errors
 		$required_fields = array();
 
-		foreach( $this->fields as $post_type => $fields ) {
+		foreach( self::$fields as $post_type => $fields ) {
 			$required_fields[ $post_type ] = array();
 			foreach( $fields as $field ) {
 				$required_fields[ $post_type ][] = array(
@@ -398,9 +398,9 @@ class required_fields {
 			$post_types = get_post_types( array( 'public' => true ) );
 
 		foreach( (array)$post_types as $type ) {
-			if ( ! isset( $this->fields[ $type ] ) )
-				$this->fields[ $type ] = array();
-			$this->fields[ $type ][] = array(
+			if ( ! isset( self::$fields[ $type ] ) )
+				self::$fields[ $type ] = array();
+			self::$fields[ $type ][] = array(
 				'name' => $name,
 				'cb' => $this->_get_callback( $validation_cb ),
 				'message' => empty( $message ) ? sprintf( __( '%s is required before you can publish.', self::DOM ), $this->prettify_name( $name ) ) : $message,
@@ -427,13 +427,13 @@ class required_fields {
 			$post_types = get_post_types( array( 'public' => true ) );
 
 		foreach( (array)$post_types as $type ) {
-			if ( ! isset( $this->fields[ $type ] ) )
+			if ( ! isset( self::$fields[ $type ] ) )
 				continue;
-			foreach( $this->fields[ $type ] as $i => $field ) {
+			foreach( self::$fields[ $type ] as $i => $field ) {
 				if ( $validation_cb === 'all' && $field[ 'name' ] === $name ) {
-					unset( $this->fields[ $type ][ $i ] );
+					unset( self::$fields[ $type ][ $i ] );
 				} elseif ( array( 'name' => $field[ 'name' ], 'cb' => $field[ 'cb' ] ) == array( 'name' => $name, 'cb' => $this->_get_callback( $validation_cb ) ) ) {
-					unset( $this->fields[ $type ][ $i ] );
+					unset( self::$fields[ $type ][ $i ] );
 				}
 			}
 		}
@@ -507,7 +507,7 @@ class required_fields {
 		$errors = array();
 
 		// add error messages here
-		foreach( $this->fields[ $postarr[ 'post_type' ] ] as $validation ) {
+		foreach( self::$fields[ $postarr[ 'post_type' ] ] as $validation ) {
 			$value = $this->_find_field( $validation[ 'name' ], $postarr );
 
 			// if we're doing multiple validations

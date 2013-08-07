@@ -1,7 +1,7 @@
 <?php
 /**
 Plugin Name: Required Post Fields
-Plugin URI:
+Plugin URI: http://codecanyon.net/item/required-post-fields-for-wordpress/5272956
 Description: This plugin allows you to make certain fields required on the edit screen before a post can be published. There is an API to add your own rules too.
 Author: Robert O'Rourke @ interconnect/it
 Version: 1.5.3

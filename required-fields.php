@@ -41,6 +41,14 @@ Changelog:
 
 if ( ! class_exists( 'required_fields' ) ) {
 
+// allow overriding of the plugin URL for embedding in themes
+if ( ! defined( 'REQUIRED_FIELDS_BASE' ) )
+	define( 'REQUIRED_FIELDS_BASE', plugin_basename( __FILE__ ) );
+
+if ( ! defined( 'REQUIRED_FIELDS_URL' ) )
+	define( 'REQUIRED_FIELDS_URL', plugins_url( '', __FILE__ ) );
+
+// initialise
 add_action( 'plugins_loaded', array( 'required_fields', 'instance' ) );
 
 class required_fields {
@@ -53,7 +61,7 @@ class required_fields {
 	/**
 	 * @var string Plugin basename
 	 */
-	protected static $version = '1.5.2';
+	protected static $version = '1.5.3';
 
 	/**
 	 * @var string Plugin basename
@@ -104,10 +112,10 @@ class required_fields {
 			return;
 
 		// set plugin base
-		self::$plugin = plugin_basename( __FILE__ );
+		self::$plugin = REQUIRED_FIELDS_BASE;
 
 		// plugin url
-		self::$plugin_url = plugins_url( '', __FILE__ );
+		self::$plugin_url = REQUIRED_FIELDS_URL;
 
 		// translations
 		load_plugin_textdomain( self::DOM, false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );

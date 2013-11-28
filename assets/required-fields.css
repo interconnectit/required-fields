@@ -17,6 +17,7 @@
 .post-new-php *:target,
 .post-php *:target,
 .required-field-error { outline: #ffebe8 4px solid; }
+.version-3-8 .required-field-error { outline: none; border-left: 4px solid #dd3d36; }
 .required-fields-errors [data-highlight] { cursor: pointer; }
 .required-fields-errors [data-highlight]:hover,
 .required-fields-errors [data-highlight]:focus { color: #c00; }

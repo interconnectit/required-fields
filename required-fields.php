@@ -42,11 +42,8 @@ Changelog:
 if ( ! class_exists( 'required_fields' ) ) {
 
 // allow overriding of the plugin URL for embedding in themes
-if ( ! defined( 'REQUIRED_FIELDS_BASE' ) )
-	define( 'REQUIRED_FIELDS_BASE', plugin_basename( __FILE__ ) );
-
-if ( ! defined( 'REQUIRED_FIELDS_URL' ) )
-	define( 'REQUIRED_FIELDS_URL', plugins_url( '', __FILE__ ) );
+defined( 'REQUIRED_FIELDS_BASE' ) 	or define( 'REQUIRED_FIELDS_BASE', plugin_basename( __FILE__ ) );
+defined( 'REQUIRED_FIELDS_URL' ) 	or define( 'REQUIRED_FIELDS_URL', plugins_url( '', __FILE__ ) );
 
 // initialise
 add_action( 'plugins_loaded', array( 'required_fields', 'instance' ) );

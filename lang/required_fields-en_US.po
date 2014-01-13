@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ICIT Required Post Fields\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-25 17:58-0000\n"
+"POT-Creation-Date: 2014-01-13 19:14-0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Robert O'Rourke <rob@interconnectit.com>\n"
 "Language-Team: Interconnect IT\n"
@@ -16,31 +16,39 @@ msgstr ""
 "X-Generator: Poedit 1.5.7\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../required-fields.php:145
+#: ../required-fields.php:162 ../required-fields/required-fields.php:153
 msgid "Settings"
 msgstr "Settings"
 
-#: ../required-fields.php:186
+#: ../required-fields.php:198
+msgid "Do not prevent publishing"
+msgstr "Do not prevent publishing"
+
+#: ../required-fields.php:205
+msgid "Displays validation messages as warnings and not errors."
+msgstr "Displays validation messages as warnings and not errors."
+
+#: ../required-fields.php:221 ../required-fields/required-fields.php:194
 #, php-format
 msgid "Required fields for %s"
 msgstr "Required fields for %s"
 
-#: ../required-fields.php:191
+#: ../required-fields.php:226 ../required-fields/required-fields.php:199
 msgid "Title"
 msgstr "Title"
 
-#: ../required-fields.php:194
+#: ../required-fields.php:229 ../required-fields/required-fields.php:202
 #, php-format
 msgid ""
 "Your %s needs a <a href=\"#titlediv\" title=\"Skip to title\">title</a>!"
 msgstr ""
 "Your %s needs a <a href=\"#titlediv\" title=\"Skip to title\">title</a>!"
 
-#: ../required-fields.php:203
+#: ../required-fields.php:239 ../required-fields/required-fields.php:211
 msgid "Content"
 msgstr "Content"
 
-#: ../required-fields.php:206
+#: ../required-fields.php:242 ../required-fields/required-fields.php:214
 msgid ""
 "You should add some <a href=\"#postdivrich\" title=\"Skip to content"
 "\">content</a> before you publish."
@@ -48,11 +56,11 @@ msgstr ""
 "You should add some <a href=\"#postdivrich\" title=\"Skip to content"
 "\">content</a> before you publish."
 
-#: ../required-fields.php:215
+#: ../required-fields.php:252 ../required-fields/required-fields.php:223
 msgid "Excerpt"
 msgstr "Excerpt"
 
-#: ../required-fields.php:218
+#: ../required-fields.php:255 ../required-fields/required-fields.php:226
 msgid ""
 "You should write a <a href=\"#postexcerpt\" title=\"Skip to excerpt\">custom "
 "excerpt</a> to summarise your post. It can help to encourage users to click "
@@ -62,16 +70,16 @@ msgstr ""
 "excerpt</a> to summarise your post. It can help to encourage users to click "
 "through to your content."
 
-#: ../required-fields.php:228
+#: ../required-fields.php:266 ../required-fields/required-fields.php:236
 msgid "Category"
 msgstr "Category"
 
-#: ../required-fields.php:229
+#: ../required-fields.php:267 ../required-fields/required-fields.php:237
 #, php-format
 msgid "This will force authors to choose a category other than \"%s\""
 msgstr "This will force authors to choose a category other than \"%s\""
 
-#: ../required-fields.php:232
+#: ../required-fields.php:270 ../required-fields/required-fields.php:240
 #, php-format
 msgid ""
 "You should choose a <a href=\"#categorydiv\" title=\"Skip to categories"
@@ -80,11 +88,11 @@ msgstr ""
 "You should choose a <a href=\"#categorydiv\" title=\"Skip to categories"
 "\">category</a> other than the default \"%s\"."
 
-#: ../required-fields.php:241
+#: ../required-fields.php:280 ../required-fields/required-fields.php:249
 msgid "Tags"
 msgstr "Tags"
 
-#: ../required-fields.php:244
+#: ../required-fields.php:283 ../required-fields/required-fields.php:252
 msgid ""
 "You should add one or more <a href=\"#tagsdiv-post_tag\" title=\"Skip to tags"
 "\">tags</a> to your post to help people find related content."
@@ -92,23 +100,27 @@ msgstr ""
 "You should add one or more <a href=\"#tagsdiv-post_tag\" title=\"Skip to tags"
 "\">tags</a> to your post to help people find related content."
 
-#: ../required-fields.php:253
+#: ../required-fields.php:293 ../required-fields/required-fields.php:261
 msgid " and "
 msgstr " and "
 
-#: ../required-fields.php:254 ../required-fields.php:374
+#: ../required-fields.php:294 ../required-fields.php:416
+#: ../required-fields/required-fields.php:262
+#: ../required-fields/required-fields.php:382
 msgid "wide"
 msgstr "wide"
 
-#: ../required-fields.php:255 ../required-fields.php:375
+#: ../required-fields.php:295 ../required-fields.php:417
+#: ../required-fields/required-fields.php:263
+#: ../required-fields/required-fields.php:383
 msgid "tall"
 msgstr "tall"
 
-#: ../required-fields.php:260
+#: ../required-fields.php:300 ../required-fields/required-fields.php:268
 msgid "Featured image"
 msgstr "Featured image"
 
-#: ../required-fields.php:263
+#: ../required-fields.php:303 ../required-fields/required-fields.php:271
 msgid ""
 "You should set a <a href=\"#postimagediv\" title=\"Skip to featured image"
 "\">featured image</a> before you can publish."
@@ -116,11 +128,11 @@ msgstr ""
 "You should set a <a href=\"#postimagediv\" title=\"Skip to featured image"
 "\">featured image</a> before you can publish."
 
-#: ../required-fields.php:269
+#: ../required-fields.php:310 ../required-fields/required-fields.php:277
 msgid "Featured image minimum size"
 msgstr "Featured image minimum size"
 
-#: ../required-fields.php:272
+#: ../required-fields.php:313 ../required-fields/required-fields.php:280
 #, php-format
 msgid ""
 "To keep your site looking perfect your <a href=\"#postimagediv\" title="
@@ -129,15 +141,15 @@ msgstr ""
 "To keep your site looking perfect your <a href=\"#postimagediv\" title="
 "\"Skip to featured image\">featured image</a> should be at least %s."
 
-#: ../required-fields.php:356
+#: ../required-fields.php:398 ../required-fields/required-fields.php:364
 msgid "Visit interconnect/it for more WordPress goodness!"
 msgstr "Visit interconnect/it for more WordPress goodness!"
 
-#: ../required-fields.php:357
+#: ../required-fields.php:399 ../required-fields/required-fields.php:365
 msgid "Required Post Fields"
 msgstr "Required Post Fields"
 
-#: ../required-fields.php:358
+#: ../required-fields.php:400 ../required-fields/required-fields.php:366
 msgid ""
 "Use the settings below to make the corresponding fields required before "
 "content can be published."
@@ -145,15 +157,15 @@ msgstr ""
 "Use the settings below to make the corresponding fields required before "
 "content can be published."
 
-#: ../required-fields.php:374
+#: ../required-fields.php:416 ../required-fields/required-fields.php:382
 msgid "by"
 msgstr "by"
 
-#: ../required-fields.php:376
+#: ../required-fields.php:418 ../required-fields/required-fields.php:384
 msgid "Set to blank or 0 to allow any size"
 msgstr "Set to blank or 0 to allow any size"
 
-#: ../required-fields.php:403
+#: ../required-fields.php:446 ../required-fields/required-fields.php:411
 #, php-format
 msgid "%s is required before you can publish."
 msgstr "%s is required before you can publish."

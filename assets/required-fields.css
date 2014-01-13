@@ -14,10 +14,18 @@
 
 .post-new-php #wpbody-content,
 .post-php #wpbody-content { overflow: visible!important; }
-.post-new-php *:target,
-.post-php *:target,
 .required-field-error { outline: #ffebe8 4px solid; }
-.version-3-8 .required-field-error { outline: none; border-left: 4px solid #dd3d36; }
+.required-field-warning { outline: #ffffe0 4px solid; }
+.error.required-fields-warnings { background-color: #ffffe0; border-color: #e6db55; }
+.version-3-8 .error.required-fields-warnings,
+.version-3-9 .error.required-fields-warnings,
+.version-3-10 .error.required-fields-warnings { background: #fff; border-left: 4px solid #ffba00; }
+.version-3-8  .required-field-error,
+.version-3-9  .required-field-error,
+.version-3-10 .required-field-error { outline: none; border-left: 4px solid #dd3d36; }
+.version-3-8  .required-field-warning,
+.version-3-9  .required-field-warning,
+.version-3-10 .required-field-warning { outline: none; border-left: 4px solid #ffba00; }
 .required-fields-errors [data-highlight] { cursor: pointer; }
 .required-fields-errors [data-highlight]:hover,
 .required-fields-errors [data-highlight]:focus { color: #c00; }

@@ -21,7 +21,7 @@
 	// highlight errors
 	$( ".required-fields-errors [data-highlight]" )
 		.each( function(){
-			$( $( this ).data( "highlight" ) ).addClass( "required-field-error" );
+			$( $( this ).data( "highlight" ) ).addClass( "required-field-" + ( $( this ).parent().hasClass( 'required-fields-warnings' ) ? "warning" : "error" ) );
 		} )
 		.click( function( e ){
 			e.preventDefault();

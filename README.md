@@ -23,11 +23,15 @@ When you add or edit a post and it doesn't meet the requirements the relevant fi
 
 ![alt text](http://interconnectit.com/cc-assets/required-fields/screenshot-2.jpg "Post edit screenshot")
 
+### NEW
+
+As of version 1.6.0 you can choose to make the required fields into warnings. The validation message will serve to nag the users however they won't prevent a post from being published.
+
 ## API
 
 There is an API to add/remove your own required fields too:
 
-**`register_required_field( name, message [, callback [, post types [, highlight ] ] ] )`**
+**`register_required_field( name, message [, callback [, post types [, highlight [, soft ] ] ] ] )`**
 
 ```php
 /**
@@ -43,10 +47,11 @@ There is an API to add/remove your own required fields too:
  * 											not empty test. Takes 2 args, $value and $postarr
  * @param string|array 		$post_type     	The post type or post types to run the validation on
  * @param string 			$highlight 		CSS selector to highlight on validation fail eg. '#titlediv'
+ * @param bool 				$soft 			If true displays the validation as a warning. Failure does not block publishing
  * @return void
  */
 
-register_required_field( $name, $message, $validation_cb, $post_types, $highlight );
+register_required_field( $name, $message, $validation_cb, $post_types, $highlight, $soft );
 ```
 
 The entire `$_POST` array is available as the second argument to your validation functions so you have

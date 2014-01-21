@@ -592,14 +592,18 @@ class required_fields {
 	public function force_draft_meta( $post_id, $post, $update ) {
 		global $wpdb;
 
+		$postarr = $_POST;
+
 		if ( ! $post_id )
 			return;
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
 		if ( ! current_user_can( 'edit_post', $post_id ) )
 			return;
-
-		$postarr = $_POST;
+		if ( ! isset( $postarr[ 'post_type' ] ) )
+			return;
+		if ( ! $update )
+			return;
 
 		$errors = $warnings = array();
 
@@ -613,6 +617,7 @@ class required_fields {
 			// if we're doing multiple validations
 			if ( is_callable( $validation[ 'cb' ] ) ) {
 				if ( ! call_user_func( $validation[ 'cb' ], $value, $postarr ) ) {
+					error_log( var_export( $value, true ) . ' failed' );
 					if ( $validation[ 'soft' ] )
 						$warnings[ sanitize_key( $validation[ 'name' ] ) ] = $validation;
 					else

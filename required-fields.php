@@ -15,6 +15,7 @@ Changelog:
 1.6.0
 	Fixed a bug with post meta checking, had to happen after the save_post action where most meta is set
 	Added the 'soft' mode for validations. Shows a warning instead of an error and allows publishing to continue
+	Added the ability to make all required fields set in the backend into warnings
 
 1.5.3
 	Modified behaviour so a published post won't be 'unpublished'

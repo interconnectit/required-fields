@@ -147,6 +147,42 @@ If you do this the plugin will highlight the field or section that matches the s
 error message will scroll the page to the field that has an error and shake it to make it clear what needs
 to be actioned.
 
+### Limiting the length of titles and content
+
+You can limit the minimum and maximum number of characters in the titles and content of your posts and pages by copying
+the following code into the functions.php file of your theme, and changing the numbers and operators to match your needs.
+
+```php
+if ( function_exists( 'register_required_field' ) ) {
+
+function check_title_length( $value, $postarr ) {
+   return strlen( $value ) >= 20;
+}
+
+function check_content_length( $value, $postarr ) {
+   return strlen( strip_tags( $value ) ) >= 200;
+}
+
+register_required_field( 'post_title', 'The title must be at least 20 characters long', 'check_title_length', array( 'post' ), '#titlediv' );
+register_required_field( 'post_content', 'Your content must be at least 200 characters long', 'check_content_length', array( 'post' ), '#postdivrich' );
+}
+```
+
+### Make connections required with Posts 2 Posts plugin
+
+You can make connections required using the plugin API, you can add the following code to your themes functions.php where
+you register your posts type connections
+
+```php
+register_required_field(
+    'p2p_connections',
+    'Connections are required before publishing', 
+    false, 
+    array( 'post' ), 
+    '#p2p-from-posts_to_pages' 
+);
+```
+
 ## Thanks!
 
 Any questions or problem give me a shout on Twitter [@sanchothefat](https://twitter.com/sanchothefat)

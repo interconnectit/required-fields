@@ -17,11 +17,11 @@ The default options are:
 * require featured image
 * minimum size for featured images
 
-![alt text](http://interconnectit.com/cc-assets/required-fields/screenshot-1.jpg "Admin screenshot")
+![alt text](http://interconnectit.com/cc-assets/required-fields/screenshot-1.png "Admin screenshot")
 
 When you add or edit a post and it doesn't meet the requirements the relevant fields will be highlighted.
 
-![alt text](http://interconnectit.com/cc-assets/required-fields/screenshot-2.jpg "Post edit screenshot")
+![alt text](http://interconnectit.com/cc-assets/required-fields/screenshot-2.png "Post edit screenshot")
 
 ### NEW
 

@@ -8,15 +8,17 @@
 		required_fields_update_postboxes = false;
 
 	// show hidden required fields
-	$.each( required_fields[ pagenow ], function( i, field ) {
-		var $field = $(field.highlight),
-			postbox_id = $field.hasClass( "postbox" ) ? $field.attr( "id" ) : $field.parents( ".postbox" ).attr( "id" );
-		if ( $field.is( ":hidden" ) ) {
-			$( "#screen-options-wrap #" + postbox_id + "-hide" ).trigger( "click.postboxes" );
-			$( "#" + postbox_id ).show();
-			required_fields_update_postboxes = true;
-		}
-	} );
+	if ( typeof required_fields !== 'undefined' && required_fields.length ) {
+		$.each( required_fields[ pagenow ], function( i, field ) {
+			var $field = $(field.highlight),
+				postbox_id = $field.hasClass( "postbox" ) ? $field.attr( "id" ) : $field.parents( ".postbox" ).attr( "id" );
+			if ( $field.is( ":hidden" ) ) {
+				$( "#screen-options-wrap #" + postbox_id + "-hide" ).trigger( "click.postboxes" );
+				$( "#" + postbox_id ).show();
+				required_fields_update_postboxes = true;
+			}
+		} );
+	}
 
 	// highlight errors
 	$( ".required-fields-errors [data-highlight]" )

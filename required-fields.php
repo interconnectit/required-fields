@@ -4,13 +4,18 @@ Plugin Name: Required Post Fields
 Plugin URI: http://codecanyon.net/item/required-post-fields-for-wordpress/5272956
 Description: This plugin allows you to make certain fields required on the edit screen before a post can be published. There is an API to add your own rules too.
 Author: Robert O'Rourke @ interconnect/it
-Version: 1.6.0
+Version: 1.6.1
 Author URI: http://interconnectit.com
 License: http://www.gnu.org/licenses/gpl-3.0.txt
 */
 
 /**
 Changelog:
+1.6.1
+	Fixed JS issue when there's no fields checked for a post type.
+	Fixed styling for current modern mp6 admin interface.
+	Fixed strict warnings, shouldn't throw any warnings now.
+	Fixed Removed some debug code left behind after last update.
 
 1.6.0
 	Fixed a bug with post meta checking, had to happen after the save_post action where most meta is set
@@ -150,6 +155,9 @@ class required_fields {
 
 		// enqueue assets
 		add_action( 'admin_enqueue_scripts', array( $this, 'scripts' ), 100 );
+
+		// Add a class to the admin body tag to show that we're using the current admin style
+		add_filter( 'admin_body_class', array( $this, 'filter_admin_body_class' ) );
 	}
 
 
@@ -197,7 +205,7 @@ class required_fields {
 		add_settings_field(
 			'required_fields_soft',
 			'<label for="required_fields_soft">' . __( 'Do not prevent publishing', self::DOM ) . '</label>',
-			array( __CLASS__, 'checkbox_field' ),
+			array( $this, 'checkbox_field' ),
 			'writing',
 			'required_fields',
 			array(
@@ -226,7 +234,7 @@ class required_fields {
 					'name' => 'post_title',
 					'title' => __( 'Title', self::DOM ),
 					'setting_cb' => 'intval',
-					'setting_field' => array( __CLASS__, 'checkbox_field' ),
+					'setting_field' => array( $this, 'checkbox_field' ),
 					'message' => sprintf( __( 'Your %s needs a <a href="#titlediv" title="Skip to title">title</a>!', self::DOM ), $post_type->labels->singular_name ),
 					'validation_cb' => false,
 					'post_type' => $post_type->name,
@@ -239,7 +247,7 @@ class required_fields {
 					'name' => 'post_content',
 					'title' => __( 'Content', self::DOM ),
 					'setting_cb' => 'intval',
-					'setting_field' => array( __CLASS__, 'checkbox_field' ),
+					'setting_field' => array( $this, 'checkbox_field' ),
 					'message' => __( 'You should add some <a href="#postdivrich" title="Skip to content">content</a> before you publish.', self::DOM ),
 					'validation_cb' => false,
 					'post_type' => $post_type->name,
@@ -252,7 +260,7 @@ class required_fields {
 					'name' => 'post_excerpt',
 					'title' => __( 'Excerpt', self::DOM ),
 					'setting_cb' => 'intval',
-					'setting_field' => array( __CLASS__, 'checkbox_field' ),
+					'setting_field' => array( $this, 'checkbox_field' ),
 					'message' => __( 'You should write a <a href="#postexcerpt" title="Skip to excerpt">custom excerpt</a> to summarise your post. It can help to encourage users to click through to your content.', self::DOM ),
 					'validation_cb' => false,
 					'post_type' => $post_type->name,
@@ -267,9 +275,9 @@ class required_fields {
 					'title' => __( 'Category', self::DOM ),
 					'description' => sprintf( __( 'This will force authors to choose a category other than "%s"', self::DOM ), $default->name ),
 					'setting_cb' => 'intval',
-					'setting_field' => array( __CLASS__, 'checkbox_field' ),
+					'setting_field' => array( $this, 'checkbox_field' ),
 					'message' => sprintf( __( 'You should choose a <a href="#categorydiv" title="Skip to categories">category</a> other than the default "%s".', self::DOM ), $default->name ),
-					'validation_cb' => array( __CLASS__, '_has_category' ),
+					'validation_cb' => array( $this, '_has_category' ),
 					'post_type' => $post_type->name,
 					'highlight' => '#categorydiv',
 					'soft' => $use_soft );
@@ -280,9 +288,9 @@ class required_fields {
 					'name' => 'post_tag',
 					'title' => __( 'Tags', self::DOM ),
 					'setting_cb' => 'intval',
-					'setting_field' => array( __CLASS__, 'checkbox_field' ),
+					'setting_field' => array( $this, 'checkbox_field' ),
 					'message' => __( 'You should add one or more <a href="#tagsdiv-post_tag" title="Skip to tags">tags</a> to your post to help people find related content.', self::DOM ),
-					'validation_cb' => array( __CLASS__, '_has_tag' ),
+					'validation_cb' => array( $this, '_has_tag' ),
 					'post_type' => $post_type->name,
 					'highlight' => '#tagsdiv-post_tag',
 					'soft' => $use_soft );
@@ -300,7 +308,7 @@ class required_fields {
 					'name' => '_thumbnail_id',
 					'title' => __( 'Featured image', self::DOM ),
 					'setting_cb' => 'intval',
-					'setting_field' => array( __CLASS__, 'checkbox_field' ),
+					'setting_field' => array( $this, 'checkbox_field' ),
 					'message' => __( 'You should set a <a href="#postimagediv" title="Skip to featured image">featured image</a> before you can publish.', self::DOM ),
 					'validation_cb' => false,
 					'post_type' => $post_type->name,
@@ -309,10 +317,10 @@ class required_fields {
 				$post_type_fields[ "image_size_{$post_type->name}" ] = array(
 					'name' => 'image_size',
 					'title' => __( 'Featured image minimum size', self::DOM ),
-					'setting_cb' => array( __CLASS__, '_check_image_size_fields' ),
-					'setting_field' => array( __CLASS__, 'image_size_field' ),
+					'setting_cb' => array( $this, '_check_image_size_fields' ),
+					'setting_field' => array( $this, 'image_size_field' ),
 					'message' => sprintf( __( 'To keep your site looking perfect your <a href="#postimagediv" title="Skip to featured image">featured image</a> should be at least %s.', self::DOM ), "<strong>$image_size_message</strong>" ),
-					'validation_cb' => array( __CLASS__, '_check_image_size' ),
+					'validation_cb' => array( $this, '_check_image_size' ),
 					'post_type' => $post_type->name,
 					'highlight' => '#postimagediv',
 					'soft' => $use_soft );
@@ -617,7 +625,6 @@ class required_fields {
 			// if we're doing multiple validations
 			if ( is_callable( $validation[ 'cb' ] ) ) {
 				if ( ! call_user_func( $validation[ 'cb' ], $value, $postarr ) ) {
-					error_log( var_export( $value, true ) . ' failed' );
 					if ( $validation[ 'soft' ] )
 						$warnings[ sanitize_key( $validation[ 'name' ] ) ] = $validation;
 					else
@@ -675,6 +682,23 @@ class required_fields {
 	}
 
 	/**
+	 * Append a class name to the admin body class so the CSS can be targeted at
+	 * the modern version of the WordPress admin
+	 *
+	 * @param string $body_class The class attribute for the body tag
+	 *
+	 * @return string    The same attribute as passed in but with our ID added.
+	 */
+	public function filter_admin_body_class( $body_class ) {
+		if ( version_compare( get_bloginfo( 'version' ), 3.8, 'ge' ) && !stristr( $body_class, 'rqf-modern' ) ) {
+			$body_class .= ' rqf-modern';
+		}
+
+		return $body_class;
+	}
+
+
+	/**
 	 * Finds the field according $name, first checking the $postarr then then post meta
 	 * If post meta is found will return the individual value if one found, otherwise an array of values with that key
 	 *
@@ -704,7 +728,7 @@ class required_fields {
 	}
 
 	// default validation callback
-	public function _not_empty( $value, $postarr ) {
+	public static function _not_empty( $value, $postarr ) {
 		if ( is_string( $value ) )
 			$value = trim( $value );
 		return ! empty( $value );
@@ -718,7 +742,7 @@ class required_fields {
 	// 1 is the ID of the 'Uncategorized' category
 	public function _has_category( $value, $postarr ) {
 		$cats = $postarr[ 'post_category' ];
-		$cats = array_filter( $cats, array( __CLASS__, '_has_category_filter' ) );
+		$cats = array_filter( $cats, array( $this, '_has_category_filter' ) );
 		return count( $cats );
 	}
 

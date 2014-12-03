@@ -4,13 +4,16 @@ Plugin Name: Required Post Fields
 Plugin URI: http://codecanyon.net/item/required-post-fields-for-wordpress/5272956
 Description: This plugin allows you to make certain fields required on the edit screen before a post can be published. There is an API to add your own rules too.
 Author: Robert O'Rourke @ interconnect/it
-Version: 1.6.1
+Version: 1.6.2
 Author URI: http://interconnectit.com
 License: http://www.gnu.org/licenses/gpl-3.0.txt
 */
 
 /**
 Changelog:
+1.6.2
+	Fixed: An exactly right image would show as under sized.
+
 1.6.1
 	Fixed JS issue when there's no fields checked for a post type.
 	Fixed styling for current modern mp6 admin interface.
@@ -780,7 +783,7 @@ class required_fields {
 		if ( $file ) {
 			list( $src, $width, $height, $crop ) = $file;
 			// original is wider than required
-			if ( $width > $req_width && $height > $req_height )
+			if ( $width >= $req_width && $height >= $req_height )
 				return true;
 		}
 

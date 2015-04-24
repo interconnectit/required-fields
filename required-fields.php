@@ -1,16 +1,20 @@
 <?php
 /**
-Plugin Name: Required Post Fields
+Plugin Name: ICIT Required Post Fields
 Plugin URI: http://codecanyon.net/item/required-post-fields-for-wordpress/5272956
 Description: This plugin allows you to make certain fields required on the edit screen before a post can be published. There is an API to add your own rules too.
 Author: Robert O'Rourke @ interconnect/it
-Version: 1.6.2
+Version: 1.6.3
 Author URI: http://interconnectit.com
 License: http://www.gnu.org/licenses/gpl-3.0.txt
 */
 
 /**
 Changelog:
+1.6.3
+    Fixed a fatal error cause by a php exception with trying to serialise closure objects
+    Changed name of plugin and most constants to have ICIT at the start
+    
 1.6.2
 	Fixed: An exactly right image would show as under sized.
 
@@ -52,16 +56,16 @@ Changelog:
 
 */
 
-if ( ! class_exists( 'required_fields' ) ) {
+if ( ! class_exists( 'icit_required_fields' ) ) {
 
 // allow overriding of the plugin URL for embedding in themes
-defined( 'REQUIRED_FIELDS_BASE' ) 	or define( 'REQUIRED_FIELDS_BASE', plugin_basename( __FILE__ ) );
-defined( 'REQUIRED_FIELDS_URL' ) 	or define( 'REQUIRED_FIELDS_URL', plugins_url( '', __FILE__ ) );
+defined( 'ICIT_REQUIRED_FIELDS_BASE' ) 	or define( 'ICIT_REQUIRED_FIELDS_BASE', plugin_basename( __FILE__ ) );
+defined( 'ICIT_REQUIRED_FIELDS_URL' ) 	or define( 'ICIT_REQUIRED_FIELDS_URL', plugins_url( '', __FILE__ ) );
 
 // initialise
-add_action( 'plugins_loaded', array( 'required_fields', 'instance' ) );
+add_action( 'plugins_loaded', array( 'icit_required_fields', 'instance' ) );
 
-class required_fields {
+class icit_required_fields {
 
 	/**
 	 * Translation DOM
@@ -124,10 +128,10 @@ class required_fields {
 			return;
 
 		// set plugin base
-		self::$plugin = REQUIRED_FIELDS_BASE;
+		self::$plugin = ICIT_REQUIRED_FIELDS_BASE;
 
 		// plugin url
-		self::$plugin_url = REQUIRED_FIELDS_URL;
+		self::$plugin_url = ICIT_REQUIRED_FIELDS_URL;
 
 		// translations
 		load_plugin_textdomain( self::DOM, false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
@@ -197,22 +201,22 @@ class required_fields {
 		}
 
 		// easy method of disabling admin area for plugin/theme
-		if ( apply_filters( 'required_fields_disable_admin', false ) )
+		if ( apply_filters( 'icit_required_fields_disable_admin', false ) )
 			return;
 
-		add_settings_section( 'required_fields', '', array( $this, 'section' ), 'writing' );
+		add_settings_section( 'icit_required_fields', '', array( $this, 'section' ), 'writing' );
 
 		// use warnings instead
-		$use_soft = get_option( 'required_fields_soft' );
-		register_setting( 'writing', 'required_fields_soft', 'intval' );
+		$use_soft = get_option( 'icit_required_fields_soft' );
+		register_setting( 'writing', 'icit_required_fields_soft', 'intval' );
 		add_settings_field(
-			'required_fields_soft',
-			'<label for="required_fields_soft">' . __( 'Do not prevent publishing', self::DOM ) . '</label>',
+			'icit_required_fields_soft',
+			'<label for="icit_required_fields_soft">' . __( 'Do not prevent publishing', self::DOM ) . '</label>',
 			array( $this, 'checkbox_field' ),
 			'writing',
-			'required_fields',
+			'icit_required_fields',
 			array(
-				'name' => 'required_fields_soft',
+				'name' => 'icit_required_fields_soft',
 				'value' => $use_soft,
 				'description' => __( 'Displays validation messages as warnings and not errors.' )
 			)
@@ -225,12 +229,12 @@ class required_fields {
 
 		foreach( $post_types as $post_type ) {
 
-			if ( in_array( $post_type->name, apply_filters( 'required_fields_ignored_post_types', array( 'attachment', 'nav_menu_item' ) ) ) )
+			if ( in_array( $post_type->name, apply_filters( 'icit_required_fields_ignored_post_types', array( 'attachment', 'nav_menu_item' ) ) ) )
 				continue;
 
 			$post_type_fields = array();
 
-			add_settings_section( "required_fields_{$post_type->name}", sprintf( __( 'Required fields for %s', self::DOM ), $post_type->labels->name ), '__return_false', 'writing' );
+			add_settings_section( "icit_required_fields_{$post_type->name}", sprintf( __( 'Required fields for %s', self::DOM ), $post_type->labels->name ), '__return_false', 'writing' );
 
 			if ( post_type_supports( $post_type->name, 'title' ) ) {
 				$post_type_fields[ "post_title_{$post_type->name}" ] = array(
@@ -272,7 +276,7 @@ class required_fields {
 			}
 
 			if ( is_object_in_taxonomy( $post_type->name, 'category' ) ) {
-				$default = get_term( 1, 'category' );
+				$default = get_term( get_option( 'default_category' ), 'category' );
 				$post_type_fields[ "category_{$post_type->name}" ] = array(
 					'name' => 'category',
 					'title' => __( 'Category', self::DOM ),
@@ -334,13 +338,13 @@ class required_fields {
 
 		}
 
-		$fields = apply_filters( 'required_fields_settings', $fields );
+		$fields = apply_filters( 'icit_required_fields_settings', $fields );
 
 		foreach( $fields as $name => $field ) {
 			$field_name = "require_{$name}";
 			$field_value = get_option( $field_name );
 			$field_id = sanitize_title_with_dashes( $field_name );
-			add_settings_field( $field_name , '<label for="' . $field_id . '">' . $field[ 'title' ] . '</label>', $field[ 'setting_field' ], 'writing', 'required_fields_' . $field[ 'post_type' ], array(
+			add_settings_field( $field_name , '<label for="' . $field_id . '">' . $field[ 'title' ] . '</label>', $field[ 'setting_field' ], 'writing', 'icit_required_fields_' . $field[ 'post_type' ], array(
 				'name' => $field_name,
 				'value' => $field_value,
 				'description' => isset( $field[ 'description' ] ) ? $field[ 'description' ] : ''
@@ -377,24 +381,24 @@ class required_fields {
 			}
 		}
 
-		wp_register_style( 'required-fields', self::$plugin_url . '/assets/required-fields.css', array(), self::$version );
-		wp_register_script( 'required-fields', self::$plugin_url . '/assets/required-fields.js', array( 'jquery', 'post' ), self::$version, true );
-		wp_localize_script( 'required-fields', 'required_fields_l10n', array(
+		wp_register_style( 'icit_required-fields', self::$plugin_url . '/assets/required-fields.css', array(), self::$version );
+		wp_register_script( 'icit_required-fields', self::$plugin_url . '/assets/required-fields.js', array( 'jquery', 'post' ), self::$version, true );
+		wp_localize_script( 'icit_required-fields', 'icit_required_fields_l10n', array(
 			'fields' => $required_fields
 		) );
 
 		// post page
 		if ( $pagenow == 'post.php' || $pagenow == 'post-new.php' ) {
 
-			wp_enqueue_style( 'required-fields' );
-			wp_enqueue_script( 'required-fields' );
+			wp_enqueue_style( 'icit_required-fields' );
+			wp_enqueue_script( 'icit_required-fields' );
 
 		}
 
 		// settings
 		if ( $pagenow == 'options-writing.php' ) {
 
-			wp_enqueue_style( 'required-fields' );
+			wp_enqueue_style( 'icit_required-fields' );
 
 		}
 
@@ -628,10 +632,28 @@ class required_fields {
 			// if we're doing multiple validations
 			if ( is_callable( $validation[ 'cb' ] ) ) {
 				if ( ! call_user_func( $validation[ 'cb' ], $value, $postarr ) ) {
-					if ( $validation[ 'soft' ] )
-						$warnings[ sanitize_key( $validation[ 'name' ] ) ] = $validation;
-					else
-						$errors[ sanitize_key( $validation[ 'name' ] ) ] = $validation;
+					if ( $validation[ 'soft' ] ) {
+						$warnings[ sanitize_key( $validation[ 'name' ] ) ] = array_filter(
+                                                                                                    $validation,
+                                                                                                    function( $a ) {
+                                                                                                        if ( is_object( $a ) )
+                                                                                                            return false;
+                                                                                                        else
+                                                                                                            return true;
+                                                                                                    }
+                                                                                                );
+					}
+                    else {
+						$errors[ sanitize_key( $validation[ 'name' ] ) ] = array_filter(
+                                                                                                $validation,
+                                                                                                function( $a ) {
+                                                                                                    if ( is_object( $a ) )
+                                                                                                        return false;
+                                                                                                    else
+                                                                                                        return true;
+                                                                                                }
+                                                                                            );
+                    }
 				}
 			}
 		}
@@ -812,7 +834,7 @@ if ( ! function_exists( 'register_required_field' ) ) {
 	 * @return void
 	 */
 	function register_required_field( $name, $message = '', $validation_cb = false, $post_type = 'post', $highlight = '', $soft = false ) {
-		$rf = required_fields::instance();
+		$rf = icit_required_fields::instance();
 		$rf->register( $name, $message, $validation_cb, $post_type, $highlight, $soft );
 	}
 
@@ -832,7 +854,7 @@ if ( ! function_exists( 'unregister_required_field' ) ) {
 	 * @return void
 	 */
 	function unregister_required_field( $name, $validation_cb = false, $post_type = 'post' ) {
-		$rf = required_fields::instance();
+		$rf = icit_required_fields::instance();
 		$rf->unregister( $name, $validation_cb, $post_type );
 	}
 

@@ -4,7 +4,7 @@
  */
 (function($){
 
-	var required_fields = required_fields_l10n.fields,
+	var required_fields = icit_required_fields_l10n.fields,
 		required_fields_update_postboxes = false;
 
 	// show hidden required fields
